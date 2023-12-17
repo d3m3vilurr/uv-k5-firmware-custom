@@ -27,7 +27,7 @@ ENABLE_BIG_FREQ               ?= 1
 ENABLE_SMALL_BOLD             ?= 1
 ENABLE_KEEP_MEM_NAME          ?= 1
 ENABLE_WIDE_RX                ?= 1
-ENABLE_TX_WHEN_AM             ?= 0
+ENABLE_TX_WHEN_AM             ?= 1
 ENABLE_F_CAL_MENU             ?= 0
 ENABLE_CTCSS_TAIL_PHASE_SHIFT ?= 0
 ENABLE_BOOT_BEEPS             ?= 0
@@ -48,6 +48,7 @@ ENABLE_SCAN_RANGES            ?= 1
 ENABLE_TX_1240_BAND           ?= 1
 ENABLE_WIDE_INPUTBOX          ?= 1
 ENABLE_MODE_CHANGE            ?= 1
+ENABLE_DEVIATION              ?= 1
 
 # ---- DEBUGGING ----
 ENABLE_AM_FIX_SHOW_DATA       ?= 0
@@ -204,13 +205,7 @@ SIZE = arm-none-eabi-size
 AUTHOR_STRING ?= EGZUMER
 # the user might not have/want git installed
 # can set own version string here (max 7 chars)
-ifneq (, $(shell $(WHERE) git))
-	VERSION_STRING ?= $(shell git describe --tags --exact-match 2>$(NULL_OUTPUT))
-	ifeq (, $(VERSION_STRING))
-    	VERSION_STRING := $(shell git rev-parse --short HEAD)
-	endif
-endif
-#VERSION_STRING := 230930b
+VERSION_STRING := SV2RSR_MOD
 
 
 ASFLAGS = -c -mcpu=cortex-m0
@@ -375,6 +370,9 @@ ifeq ($(ENABLE_AGC_SHOW_DATA),1)
 endif
 ifeq ($(ENABLE_FLASHLIGHT),1)
 	CFLAGS  += -DENABLE_FLASHLIGHT
+endif
+ifeq ($(ENABLE_DEVIATION),1)
+	CFLAGS  += -DENABLE_DEVIATION
 endif
 
 LDFLAGS =
