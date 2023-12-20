@@ -442,3 +442,16 @@ void ACTION_BlminTmpOff(void)
 	}
 }
 #endif
+
+#ifdef ENABLE_MODE_CHANGE
+void ACTION_ModeChange(void)
+{
+    ModulationMode_t mod = gEeprom.VfoInfo[gEeprom.TX_VFO].Modulation;
+    mod++;
+    if (mod >= MODULATION_UKNOWN) {
+        mod = MODULATION_FM;
+    }
+    gEeprom.VfoInfo[gEeprom.TX_VFO].Modulation = mod;
+    // TODO auto set bandwidth, narrow/width, ...
+}
+#endif

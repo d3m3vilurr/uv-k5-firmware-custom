@@ -532,7 +532,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		// menu key pressed
 		gBeepToPlay = BEEP_1KHZ_60MS_OPTIONAL;
 
-	if (bKeyHeld)
+	if (bKeyHeld && !gWasFKeyPressed)
 	{	// menu key held down (long press)
 
 		if (bKeyPressed)
@@ -557,6 +557,17 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 
 		return;
 	}
+
+#ifdef ENABLE_MODE_CHANGE
+	if (!bKeyPressed && gWasFKeyPressed)
+	{	// F + menu key
+		gWasFKeyPressed = false;
+		gUpdateStatus   = true;
+
+		ACTION_ModeChange();
+		return;
+	}
+#endif
 
 	if (!bKeyPressed && !gDTMF_InputMode)
 	{	// menu key released
