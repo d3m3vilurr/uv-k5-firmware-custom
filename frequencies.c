@@ -192,6 +192,10 @@ int32_t TX_freq_check(const uint32_t Frequency)
 				return 0;
 			if (Frequency >= 42000000 && Frequency < 45000000)
 				return 0;
+#ifdef ENABLE_TX_1240_BAND
+			if (Frequency >= 124000000 && Frequency < 130000000)
+				return 0;
+#endif
 			break;
 
 		case F_LOCK_CE:
@@ -199,6 +203,10 @@ int32_t TX_freq_check(const uint32_t Frequency)
 				return 0;
 			if (Frequency >= 43000000 && Frequency < 44000000)
 				return 0;
+#ifdef ENABLE_TX_1240_BAND
+			if (Frequency >= 126000000 && Frequency < 130000000)
+				return 0;
+#endif
 			break;
 
 		case F_LOCK_GB:
@@ -206,6 +214,10 @@ int32_t TX_freq_check(const uint32_t Frequency)
 				return 0;
 			if (Frequency >= 43000000 && Frequency < 44000000)
 				return 0;
+#ifdef ENABLE_TX_1240_BAND
+			if (Frequency >= 124000000 && Frequency < 132500000)
+				return 0;
+#endif
 			break;
 
 		case F_LOCK_430:
@@ -213,6 +225,10 @@ int32_t TX_freq_check(const uint32_t Frequency)
 				return 0;
 			if (Frequency >= 40000000 && Frequency < 43000000)
 				return 0;
+#ifdef ENABLE_TX_1240_BAND
+			if (Frequency >= 124000000 && Frequency < 130000000)
+				return 0;
+#endif
 			break;
 
 		case F_LOCK_438:
@@ -220,6 +236,10 @@ int32_t TX_freq_check(const uint32_t Frequency)
 				return 0;
 			if (Frequency >= 40000000 && Frequency < 43800000)
 				return 0;
+#ifdef ENABLE_TX_1240_BAND
+			if (Frequency >= 124000000 && Frequency < 130000000)
+				return 0;
+#endif
 			break;
 
 		case F_LOCK_ALL:
