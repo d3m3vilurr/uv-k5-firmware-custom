@@ -142,8 +142,8 @@ void SETTINGS_InitEEPROM(void)
 			gEeprom.S9_LEVEL = Data[2];
 		}
 		else {
-			gEeprom.S0_LEVEL = 130;
-			gEeprom.S9_LEVEL = 76;
+			gEeprom.S0_LEVEL = 120;
+			gEeprom.S9_LEVEL = 93;
 		}
 	#endif
 
