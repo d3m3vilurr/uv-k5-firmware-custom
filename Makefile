@@ -205,7 +205,13 @@ SIZE = arm-none-eabi-size
 AUTHOR_STRING ?= EGZUMER
 # the user might not have/want git installed
 # can set own version string here (max 7 chars)
-VERSION_STRING := SV2RSR_MOD
+ifneq (, $(shell $(WHERE) git))
+	VERSION_STRING ?= $(shell git describe --tags --exact-match 2>$(NULL_OUTPUT))
+	ifeq (, $(VERSION_STRING))
+    	VERSION_STRING := $(shell git rev-parse --short HEAD)
+	endif
+endif
+#VERSION_STRING := 230930b
 
 
 ASFLAGS = -c -mcpu=cortex-m0
