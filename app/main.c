@@ -563,6 +563,8 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 	{	// F + menu key
 		gWasFKeyPressed = false;
 		gUpdateStatus   = true;
+		gRequestSaveVFO = true;
+		gRequestSaveChannel = 1;
 
 		ACTION_ModeChange();
 		return;

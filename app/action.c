@@ -446,12 +446,25 @@ void ACTION_BlminTmpOff(void)
 #ifdef ENABLE_MODE_CHANGE
 void ACTION_ModeChange(void)
 {
-    ModulationMode_t mod = gEeprom.VfoInfo[gEeprom.TX_VFO].Modulation;
-    mod++;
-    if (mod >= MODULATION_UKNOWN) {
-        mod = MODULATION_FM;
-    }
-    gEeprom.VfoInfo[gEeprom.TX_VFO].Modulation = mod;
-    // TODO auto set bandwidth, narrow/width, ...
+	ModulationMode_t mod = gTxVfo->Modulation;
+	mod++;
+	if (mod >= MODULATION_UKNOWN) {
+		mod = MODULATION_FM;
+	}
+	gTxVfo->Modulation = mod;
+	// FIXME: these settings are related with operating region
+	switch (mod) {
+		case MODULATION_FM:
+			gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_WIDE;
+			gTxVfo->STEP_SETTING = STEP_20kHz;
+			break;
+		case MODULATION_AM:
+		case MODULATION_USB:
+			gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_NARROW;
+			gTxVfo->STEP_SETTING = STEP_1kHz;
+			break;
+		default:
+			break;
+	}
 }
 #endif
