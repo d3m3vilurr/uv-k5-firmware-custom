@@ -214,6 +214,13 @@ void FUNCTION_Transmit()
 	}
 #endif
 
+#ifdef ENABLE_CW_MODULATION
+	if (gCurrentVfo->Modulation == MODULATION_CW) {
+		BK4819_TransmitToneDelay(true, 700, 0);
+		AUDIO_AudioPathOn();
+	}
+#endif
+
 	if (gCurrentVfo->SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
 		BK4819_EnableScramble(gCurrentVfo->SCRAMBLING_TYPE - 1);
 	else

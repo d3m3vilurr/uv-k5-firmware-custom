@@ -1309,6 +1309,11 @@ void BK4819_PlayDTMFString(const char *pString, bool bDelayFirst, uint16_t First
 
 void BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency)
 {
+    BK4819_TransmitToneDelay(bLocalLoopback, Frequency, 50);
+}
+
+void BK4819_TransmitToneDelay(bool bLocalLoopback, uint32_t Frequency, uint16_t delay)
+{
 	BK4819_EnterTxMute();
 
 	// REG_70
@@ -1337,7 +1342,7 @@ void BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency)
 
 	BK4819_EnableTXLink();
 
-	SYSTEM_DelayMs(50);
+	SYSTEM_DelayMs(delay);
 
 	BK4819_ExitTxMute();
 }

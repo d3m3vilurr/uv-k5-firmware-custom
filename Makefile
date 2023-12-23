@@ -49,6 +49,7 @@ ENABLE_TX_1240_BAND           ?= 1
 ENABLE_WIDE_INPUTBOX          ?= 1
 ENABLE_MODE_CHANGE            ?= 1
 ENABLE_DEVIATION              ?= 1
+ENABLE_CW_MODULATION          ?= 1
 
 # ---- DEBUGGING ----
 ENABLE_AM_FIX_SHOW_DATA       ?= 0
@@ -379,6 +380,9 @@ ifeq ($(ENABLE_FLASHLIGHT),1)
 endif
 ifeq ($(ENABLE_DEVIATION),1)
 	CFLAGS  += -DENABLE_DEVIATION
+endif
+ifeq ($(ENABLE_CW_MODULATION),1)
+	CFLAGS  += -DENABLE_CW_MODULATION
 endif
 
 LDFLAGS =

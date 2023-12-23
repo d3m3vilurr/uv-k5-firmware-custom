@@ -131,6 +131,7 @@ void     BK4819_PlayDTMF(char Code);
 void     BK4819_PlayDTMFString(const char *pString, bool bDelayFirst, uint16_t FirstCodePersistTime, uint16_t HashCodePersistTime, uint16_t CodePersistTime, uint16_t CodeInternalTime);
 
 void     BK4819_TransmitTone(bool bLocalLoopback, uint32_t Frequency);
+void     BK4819_TransmitToneDelay(bool bLocalLoopback, uint32_t Frequency, uint16_t delay);
 
 void     BK4819_GenTail(uint8_t Tail);
 void     BK4819_EnableCDCSS(void);

@@ -48,6 +48,10 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 	[MODULATION_AM]="AM",
 	[MODULATION_USB]="USB",
 
+#ifdef ENABLE_CW_MODULATION
+	[MODULATION_CW]="CW",
+#endif
+
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
 	[MODULATION_BYP]="BYP",
 	[MODULATION_RAW]="RAW"
@@ -635,6 +639,11 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	#else
 		Frequency = gRxVfo->pRX->Frequency;
 	#endif
+	#ifdef ENABLE_CW_MODULATION
+		if (gRxVfo->Modulation == MODULATION_CW)
+			BK4819_SetFrequency(Frequency + 80);
+		else
+	#endif
 	BK4819_SetFrequency(Frequency);
 
 	BK4819_SetupSquelch(
@@ -642,6 +651,11 @@ void RADIO_SetupRegisters(bool switchToForeground)
 		gRxVfo->SquelchOpenNoiseThresh,   gRxVfo->SquelchCloseNoiseThresh,
 		gRxVfo->SquelchCloseGlitchThresh, gRxVfo->SquelchOpenGlitchThresh);
 
+	#ifdef ENABLE_CW_MODULATION
+		if (gRxVfo->Modulation == MODULATION_CW)
+			BK4819_PickRXFilterPathBasedOnFrequency(Frequency + 80);
+		else
+	#endif
 	BK4819_PickRXFilterPathBasedOnFrequency(Frequency);
 
 	// what does this in do ?
@@ -853,6 +867,11 @@ void RADIO_SetTxParameters(void)
 			break;
 	}
 
+#ifdef ENABLE_CW_MODULATION
+	if (gCurrentVfo->Modulation == MODULATION_CW)
+		BK4819_SetFrequency(gCurrentVfo->pTX->Frequency + 80);
+	else
+#endif
 	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
 
 	// TX compressor
@@ -862,6 +881,11 @@ void RADIO_SetTxParameters(void)
 
 	SYSTEM_DelayMs(10);
 
+#ifdef ENABLE_CW_MODULATION
+	if (gCurrentVfo->Modulation == MODULATION_CW)
+		BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency + 80);
+	else
+#endif
 	BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency);
 
 	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_PA_ENABLE, true);
@@ -894,6 +918,12 @@ void RADIO_SetTxParameters(void)
 		BK4819_ExitSubAu();
 	}
 #ifdef ENABLE_DEVIATION
+#ifdef ENABLE_CW_MODULATION
+	if (gCurrentVfo->Modulation == MODULATION_CW) {
+		BK4819_SetupDeviation(gCurrentVfo->DeviationSSB * 0x5B);
+	}
+	else
+#endif
 	if (gCurrentVfo->Modulation == MODULATION_USB) {
 		BK4819_SetupDeviation(gCurrentVfo->DeviationSSB * 0x5B);
 	}
@@ -921,6 +951,12 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 		case MODULATION_USB:
 			mod = BK4819_AF_BASEBAND2;
 			break;
+
+#ifdef ENABLE_CW_MODULATION
+		case MODULATION_CW:
+			mod = BK4819_AF_BASEBAND1;
+			break;
+#endif
 
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
 		case MODULATION_BYP:
@@ -1112,8 +1148,16 @@ void RADIO_EnableCxCSS(void)
 
 void RADIO_SendEndOfTransmission(void)
 {
+#ifdef ENABLE_CW_MODULATION
+	// PlayRoger has multiple delay codes.
+	// bypass it when mode is CW
+	if (gCurrentVfo->Modulation != MODULATION_CW) {
+#endif
 	BK4819_PlayRoger();
 	DTMF_SendEndOfTransmission();
+#ifdef ENABLE_CW_MODULATION
+	}
+#endif
 
 	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
 	RADIO_EnableCxCSS();

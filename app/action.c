@@ -463,6 +463,12 @@ void ACTION_ModeChange(void)
 			gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_NARROW;
 			gTxVfo->STEP_SETTING = STEP_1kHz;
 			break;
+#ifdef ENABLE_CW_MODULATION
+		case MODULATION_CW:
+			gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_NARROWER;
+			gTxVfo->STEP_SETTING = STEP_0_1kHz;
+			break;
+#endif
 		default:
 			break;
 	}

@@ -439,6 +439,15 @@ static void HandleFunction(void)
 				}
 				BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency);
 			}
+#ifdef ENABLE_CW_MODULATION
+			else if (gCurrentVfo->Modulation == MODULATION_CW) {
+				uint8_t val = BK4819_GetVoiceAmplitudeOut() >> 7;
+				// TODO
+				val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 0);
+				// CW frequency is shifted 800hz
+				BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency + 80);
+			}
+#endif
 #endif
 			break;
 
@@ -1044,11 +1053,16 @@ static void CheckKeys(void)
 #endif
 
 // -------------------- PTT ------------------------
+	uint8_t maxDebounceCounter = 3; // 30ms
+#ifdef ENABLE_CW_MODULATION
+	if (gCurrentVfo->Modulation == MODULATION_CW)
+		maxDebounceCounter = 0;
+#endif
 	if (gPttIsPressed)
 	{
 		if (GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) || SerialConfigInProgress())
 		{	// PTT released or serial comms config in progress
-			if (++gPttDebounceCounter >= 3 || SerialConfigInProgress())	    // 30ms
+			if (++gPttDebounceCounter >= maxDebounceCounter || SerialConfigInProgress())
 			{	// stop transmitting
 				ProcessKey(KEY_PTT, false, false);
 				gPttIsPressed = false;
@@ -1061,7 +1075,7 @@ static void CheckKeys(void)
 	}
 	else if (!GPIO_CheckBit(&GPIOC->DATA, GPIOC_PIN_PTT) && !SerialConfigInProgress())
 	{	// PTT pressed
-		if (++gPttDebounceCounter >= 3)	    // 30ms
+		if (++gPttDebounceCounter >= maxDebounceCounter)
 		{	// start transmitting
 			boot_counter_10ms   = 0;
 			gPttDebounceCounter = 0;
