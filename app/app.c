@@ -429,7 +429,7 @@ static void HandleFunction(void)
 
 		case FUNCTION_TRANSMIT:
 #ifdef ENABLE_TX_WHEN_AM
-			if (gCurrentVfo->Modulation == MODULATION_USB || gCurrentVfo->Modulation == MODULATION_AM) {
+			if (gCurrentVfo->Modulation != MODULATION_FM) {
 				uint8_t val = BK4819_GetVoiceAmplitudeOut() >> 7;
 				if (gCurrentVfo->Modulation == MODULATION_USB) {
 					val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 0);
@@ -437,17 +437,9 @@ static void HandleFunction(void)
 				else {
 					val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 50);
 				}
-				BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency);
+				BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency + gModulationFreqOffset[gCurrentVfo->Modulation]);
+
 			}
-#ifdef ENABLE_CW_MODULATION
-			else if (gCurrentVfo->Modulation == MODULATION_CW) {
-				uint8_t val = BK4819_GetVoiceAmplitudeOut() >> 7;
-				// TODO
-				val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 0);
-				// CW frequency is shifted 800hz
-				BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency + 80);
-			}
-#endif
 #endif
 			break;
 

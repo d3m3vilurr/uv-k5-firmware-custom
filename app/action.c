@@ -55,6 +55,25 @@ inline static void ACTION_1750() { ACTION_AlarmOr1750(true); };
 
 inline static void ACTION_ScanRestart() { ACTION_Scan(true); };
 
+typedef struct {
+	uint8_t BANDWIDTH;
+	STEP_Setting_t STEP_SETTING;
+} MODULATION_settings_t;
+
+const MODULATION_settings_t modulationDefaultSettings[] = {
+	{.BANDWIDTH = BANDWIDTH_WIDE,       .STEP_SETTING = STEP_20kHz},
+	{.BANDWIDTH = BANDWIDTH_NARROW,     .STEP_SETTING = STEP_1kHz},
+	{.BANDWIDTH = BANDWIDTH_NARROW,     .STEP_SETTING = STEP_1kHz},
+#ifdef ENABLE_CW_MODULATION
+	{.BANDWIDTH = BANDWIDTH_NARROWER,   .STEP_SETTING = STEP_0_1kHz},
+#endif
+
+#ifdef ENABLE_BYP_RAW_DEMODULATORS
+	{.BANDWIDTH = BANDWIDTH_WIDE,       .STEP_SETTING = STEP_12_5kHz},
+	{.BANDWIDTH = BANDWIDTH_WIDE,       .STEP_SETTING = STEP_12_5kHz},
+#endif
+};
+
 void (*action_opt_table[])(void) = {
 	[ACTION_OPT_NONE] = &FUNCTION_NOP,
 	[ACTION_OPT_POWER] = &ACTION_Power,
@@ -452,25 +471,9 @@ void ACTION_ModeChange(void)
 		mod = MODULATION_FM;
 	}
 	gTxVfo->Modulation = mod;
-	// FIXME: these settings are related with operating region
-	switch (mod) {
-		case MODULATION_FM:
-			gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_WIDE;
-			gTxVfo->STEP_SETTING = STEP_20kHz;
-			break;
-		case MODULATION_AM:
-		case MODULATION_USB:
-			gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_NARROW;
-			gTxVfo->STEP_SETTING = STEP_1kHz;
-			break;
-#ifdef ENABLE_CW_MODULATION
-		case MODULATION_CW:
-			gTxVfo->CHANNEL_BANDWIDTH = BANDWIDTH_NARROWER;
-			gTxVfo->STEP_SETTING = STEP_0_1kHz;
-			break;
-#endif
-		default:
-			break;
-	}
+	const MODULATION_settings_t *setting = &modulationDefaultSettings[mod];
+
+	gTxVfo->CHANNEL_BANDWIDTH = setting->BANDWIDTH;
+	gTxVfo->STEP_SETTING = setting->STEP_SETTING;
 }
 #endif

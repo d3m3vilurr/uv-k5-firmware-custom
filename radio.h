@@ -74,6 +74,7 @@ typedef enum {
 } ModulationMode_t;
 
 extern const char gModulationStr[MODULATION_UKNOWN][4];
+extern const int8_t gModulationFreqOffset[MODULATION_UKNOWN];
 
 typedef struct
 {

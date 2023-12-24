@@ -58,7 +58,20 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 #endif
 };
 
+const int8_t gModulationFreqOffset[MODULATION_UKNOWN] = {
+	0,
+	0,
+	0,
 
+#ifdef ENABLE_CW_MODULATION
+	80,
+#endif
+
+#ifdef ENABLE_BYP_RAW_DEMODULATORS
+	0,
+	0,
+#endif
+};
 
 bool RADIO_CheckValidChannel(uint16_t Channel, bool bCheckScanList, uint8_t VFO)
 {	// return true if the channel appears valid
@@ -639,24 +652,14 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	#else
 		Frequency = gRxVfo->pRX->Frequency;
 	#endif
-	#ifdef ENABLE_CW_MODULATION
-		if (gRxVfo->Modulation == MODULATION_CW)
-			BK4819_SetFrequency(Frequency + 80);
-		else
-	#endif
-	BK4819_SetFrequency(Frequency);
+	BK4819_SetFrequency(Frequency + gModulationFreqOffset[gRxVfo->Modulation]);
 
 	BK4819_SetupSquelch(
 		gRxVfo->SquelchOpenRSSIThresh,    gRxVfo->SquelchCloseRSSIThresh,
 		gRxVfo->SquelchOpenNoiseThresh,   gRxVfo->SquelchCloseNoiseThresh,
 		gRxVfo->SquelchCloseGlitchThresh, gRxVfo->SquelchOpenGlitchThresh);
 
-	#ifdef ENABLE_CW_MODULATION
-		if (gRxVfo->Modulation == MODULATION_CW)
-			BK4819_PickRXFilterPathBasedOnFrequency(Frequency + 80);
-		else
-	#endif
-	BK4819_PickRXFilterPathBasedOnFrequency(Frequency);
+	BK4819_PickRXFilterPathBasedOnFrequency(Frequency + gModulationFreqOffset[gRxVfo->Modulation]);
 
 	// what does this in do ?
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_RX_ENABLE, true);
@@ -867,12 +870,7 @@ void RADIO_SetTxParameters(void)
 			break;
 	}
 
-#ifdef ENABLE_CW_MODULATION
-	if (gCurrentVfo->Modulation == MODULATION_CW)
-		BK4819_SetFrequency(gCurrentVfo->pTX->Frequency + 80);
-	else
-#endif
-	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency);
+	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency + gModulationFreqOffset[gCurrentVfo->Modulation]);
 
 	// TX compressor
 	BK4819_SetCompander(gRxVfo->Compander == 1 || gRxVfo->Compander >= 3/*))*/ ? gRxVfo->Compander : 0);
@@ -881,12 +879,7 @@ void RADIO_SetTxParameters(void)
 
 	SYSTEM_DelayMs(10);
 
-#ifdef ENABLE_CW_MODULATION
-	if (gCurrentVfo->Modulation == MODULATION_CW)
-		BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency + 80);
-	else
-#endif
-	BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency);
+	BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency + gModulationFreqOffset[gCurrentVfo->Modulation]);
 
 	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_PA_ENABLE, true);
 
