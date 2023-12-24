@@ -180,7 +180,7 @@ else # unix
     RM = rm -f
     FixPath = $1
     WHERE = which
-    NULL_OUTPUT = /dev/null	
+    NULL_OUTPUT = /dev/null
 endif
 
 AS = arm-none-eabi-gcc
@@ -449,3 +449,6 @@ bsp/dp32g030/%.h: hardware/dp32g030/%.def
 
 clean:
 	$(RM) $(call FixPath, $(TARGET).bin $(TARGET).packed.bin $(TARGET) $(OBJS) $(DEPS))
+
+doxygen:
+	doxygen
