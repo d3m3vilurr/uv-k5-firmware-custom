@@ -697,11 +697,17 @@ void UI_DisplayMain(void)
 			UI_PrintStringSmall("R", LCD_WIDTH + 62, 0, line + 1);
 
 		{	// show the narrow band symbol
-			String[0] = '\0';
+			String[0] = 'W';
+			String[1] = '\0';
+			String[2] = '\0';
 			if (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
 			{
 				String[0] = 'N';
-				String[1] = '\0';
+			}
+			else if (gEeprom.VfoInfo[vfo_num].CHANNEL_BANDWIDTH == BANDWIDTH_NARROWER)
+			{
+				String[0] = 'N';
+				String[1] = '-';
 			}
 			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, line + 1);
 		}

@@ -322,9 +322,10 @@ void RADIO_ConfigureChannel(const unsigned int VFO, const unsigned int configure
 		{
 			const uint8_t d4 = data[4];
 			pVfo->FrequencyReverse  = !!((d4 >> 0) & 1u);
-			pVfo->CHANNEL_BANDWIDTH = !!((d4 >> 1) & 1u);
+			//pVfo->CHANNEL_BANDWIDTH = !!((d4 >> 1) & 1u);
 			pVfo->OUTPUT_POWER      =   ((d4 >> 2) & 3u);
 			pVfo->BUSY_CHANNEL_LOCK = !!((d4 >> 4) & 1u);
+			pVfo->CHANNEL_BANDWIDTH =   ((d4 >> 5) & 3u);
 		}
 
 		if (data[5] == 0xFF)
@@ -591,6 +592,7 @@ void RADIO_SetupRegisters(bool switchToForeground)
 			[[fallthrough]];
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
+		case BK4819_FILTER_BW_NARROWER:
 			#ifdef ENABLE_AM_FIX
 //				BK4819_SetFilterBandwidth(Bandwidth, gRxVfo->Modulation == MODULATION_AM && gSetting_AM_fix);
 				BK4819_SetFilterBandwidth(Bandwidth, true);
@@ -837,6 +839,7 @@ void RADIO_SetTxParameters(void)
 			[[fallthrough]];
 		case BK4819_FILTER_BW_WIDE:
 		case BK4819_FILTER_BW_NARROW:
+		case BK4819_FILTER_BW_NARROWER:
 			#ifdef ENABLE_AM_FIX
 //				BK4819_SetFilterBandwidth(Bandwidth, gCurrentVfo->Modulation == MODULATION_AM && gSetting_AM_fix);
 				BK4819_SetFilterBandwidth(Bandwidth, true);
