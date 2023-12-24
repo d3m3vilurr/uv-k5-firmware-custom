@@ -362,7 +362,11 @@ static void MAIN_Key_DIGITS(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld)
 #ifdef ENABLE_VOICE
 			gAnotherVoiceID = (VOICE_ID_t)Key;
 #endif
+#ifdef ENABLE_WIDE_INPUTBOX
+			bool isGigaF = true;
+#else
 			bool isGigaF = gTxVfo->pRX->Frequency >= _1GHz_in_KHz;
+#endif
 			if (gInputBoxIndex < 6 + isGigaF)
 			{
 				return;

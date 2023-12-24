@@ -494,7 +494,11 @@ void UI_DisplayMain(void)
 		else if (gInputBoxIndex > 0 && IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]) && gEeprom.TX_VFO == vfo_num)
 		{	// user entering a frequency
 			const char * ascii = INPUTBOX_GetAscii();
+#ifdef ENABLE_WIDE_INPUTBOX
+			bool isGigaF = gInputBoxIndex != 0;
+#else
 			bool isGigaF = frequency>=_1GHz_in_KHz;
+#endif
 			sprintf(String, "%.*s.%.3s", 3 + isGigaF, ascii, ascii + 3 + isGigaF);
 #ifdef ENABLE_BIG_FREQ
 			if(!isGigaF) {
