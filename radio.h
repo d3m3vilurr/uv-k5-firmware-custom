@@ -74,7 +74,6 @@ typedef enum {
 } ModulationMode_t;
 
 extern const char gModulationStr[MODULATION_UKNOWN][4];
-extern const int8_t gModulationFreqOffset[MODULATION_UKNOWN];
 
 typedef struct
 {
@@ -141,6 +140,13 @@ typedef struct VFO_Info_t
 
 	char           Name[16];
 } VFO_Info_t;
+
+typedef struct {
+	int16_t TX;
+	int16_t RX;
+} FREQ_modulation_setting_t;
+
+extern const FREQ_modulation_setting_t gModulationFreqOffset[MODULATION_UKNOWN];
 
 // Settings of the main VFO that is selected by the user
 // The pointer follows gEeprom.TX_VFO index

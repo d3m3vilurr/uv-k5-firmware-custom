@@ -58,18 +58,18 @@ const char gModulationStr[MODULATION_UKNOWN][4] = {
 #endif
 };
 
-const int8_t gModulationFreqOffset[MODULATION_UKNOWN] = {
-	0,
-	0,
-	0,
+const FREQ_modulation_setting_t gModulationFreqOffset[MODULATION_UKNOWN] = {
+	{.TX = 0, .RX = 0},
+	{.TX = 0, .RX = 0},
+	{.TX = 0, .RX = 0},
 
 #ifdef ENABLE_CW_MODULATION
-	80,
+	{.TX = -45, .RX = 5},
 #endif
 
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
-	0,
-	0,
+	{.TX = 0, .RX = 80},
+	{.TX = 0, .RX = 80},
 #endif
 };
 
@@ -652,14 +652,16 @@ void RADIO_SetupRegisters(bool switchToForeground)
 	#else
 		Frequency = gRxVfo->pRX->Frequency;
 	#endif
-	BK4819_SetFrequency(Frequency + gModulationFreqOffset[gRxVfo->Modulation]);
+	const FREQ_modulation_setting_t *offsets = &gModulationFreqOffset[gRxVfo->Modulation];
+
+	BK4819_SetFrequency(Frequency + offsets->RX);
 
 	BK4819_SetupSquelch(
 		gRxVfo->SquelchOpenRSSIThresh,    gRxVfo->SquelchCloseRSSIThresh,
 		gRxVfo->SquelchOpenNoiseThresh,   gRxVfo->SquelchCloseNoiseThresh,
 		gRxVfo->SquelchCloseGlitchThresh, gRxVfo->SquelchOpenGlitchThresh);
 
-	BK4819_PickRXFilterPathBasedOnFrequency(Frequency + gModulationFreqOffset[gRxVfo->Modulation]);
+	BK4819_PickRXFilterPathBasedOnFrequency(Frequency + offsets->RX);
 
 	// what does this in do ?
 	BK4819_ToggleGpioOut(BK4819_GPIO0_PIN28_RX_ENABLE, true);
@@ -870,7 +872,9 @@ void RADIO_SetTxParameters(void)
 			break;
 	}
 
-	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency + gModulationFreqOffset[gCurrentVfo->Modulation]);
+	const FREQ_modulation_setting_t *offsets = &gModulationFreqOffset[gCurrentVfo->Modulation];
+
+	BK4819_SetFrequency(gCurrentVfo->pTX->Frequency + offsets->TX);
 
 	// TX compressor
 	BK4819_SetCompander(gRxVfo->Compander == 1 || gRxVfo->Compander >= 3/*))*/ ? gRxVfo->Compander : 0);
@@ -879,13 +883,13 @@ void RADIO_SetTxParameters(void)
 
 	SYSTEM_DelayMs(10);
 
-	BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency + gModulationFreqOffset[gCurrentVfo->Modulation]);
+	BK4819_PickRXFilterPathBasedOnFrequency(gCurrentVfo->pTX->Frequency + offsets->TX);
 
 	BK4819_ToggleGpioOut(BK4819_GPIO1_PIN29_PA_ENABLE, true);
 
 	SYSTEM_DelayMs(5);
 
-	BK4819_SetupPowerAmplifier(gCurrentVfo->TXP_CalculatedSetting, gCurrentVfo->pTX->Frequency);
+	BK4819_SetupPowerAmplifier(gCurrentVfo->TXP_CalculatedSetting, gCurrentVfo->pTX->Frequency + offsets->TX);
 
 	SYSTEM_DelayMs(10);
 
@@ -964,7 +968,17 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 	BK4819_SetAF(mod);
 
 	BK4819_SetRegValue(afDacGainRegSpec, 0xF);
-	BK4819_WriteRegister(BK4819_REG_3D, modulation == MODULATION_USB ? 0 : 0x2AAB);
+	switch (modulation) {
+		default:
+		case MODULATION_FM:
+		case MODULATION_AM:
+			BK4819_WriteRegister(BK4819_REG_3D, 0x2AAB);
+			break;
+		case MODULATION_USB:
+			BK4819_WriteRegister(BK4819_REG_3D, 0);
+			break;
+	}
+
 	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
 
 	RADIO_SetupAGC(modulation == MODULATION_AM, false);
@@ -1148,12 +1162,13 @@ void RADIO_SendEndOfTransmission(void)
 #endif
 	BK4819_PlayRoger();
 	DTMF_SendEndOfTransmission();
+
+	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
+	RADIO_EnableCxCSS();
 #ifdef ENABLE_CW_MODULATION
 	}
 #endif
 
-	// send the CTCSS/DCS tail tone - allows the receivers to mute the usual FM squelch tail/crash
-	RADIO_EnableCxCSS();
 	RADIO_SetupRegisters(false);
 }
 

@@ -437,7 +437,8 @@ static void HandleFunction(void)
 				else {
 					val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 50);
 				}
-				BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency + gModulationFreqOffset[gCurrentVfo->Modulation]);
+				const FREQ_modulation_setting_t *offsets = &gModulationFreqOffset[gCurrentVfo->Modulation];
+				BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency + offsets->TX);
 
 			}
 #endif
