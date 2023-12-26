@@ -54,6 +54,7 @@ ENABLE_CW_MODULATION          ?= 1
 # ---- DEBUGGING ----
 ENABLE_AM_FIX_SHOW_DATA       ?= 0
 ENABLE_AGC_SHOW_DATA          ?= 0
+ENABLE_UART_RW_BK_REGS        ?= 0
 
 #############################################################
 
@@ -211,6 +212,11 @@ ifneq (, $(shell $(WHERE) git))
 	ifeq (, $(VERSION_STRING))
     	VERSION_STRING := $(shell git rev-parse --short HEAD)
 	endif
+endif
+# If there is still no VERSION_STRING we need to make one.
+# It is needed for the firmware packing script
+ifeq (, $(VERSION_STRING))
+	VERSION_STRING := NOGIT
 endif
 #VERSION_STRING := 230930b
 
@@ -383,6 +389,9 @@ ifeq ($(ENABLE_DEVIATION),1)
 endif
 ifeq ($(ENABLE_CW_MODULATION),1)
 	CFLAGS  += -DENABLE_CW_MODULATION
+endif
+ifeq ($(ENABLE_UART_RW_BK_REGS),1)
+	CFLAGS  += -DENABLE_UART_RW_BK_REGS
 endif
 
 LDFLAGS =

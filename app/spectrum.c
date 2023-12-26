@@ -726,7 +726,7 @@ static void DrawStatus() {
 
 static void DrawF(uint32_t f) {
   sprintf(String, "%u.%05u", f / 100000, f % 100000);
-  UI_PrintStringSmall(String, 8, 127, 0);
+  UI_PrintStringSmallNormal(String, 8, 127, 0);
 
   sprintf(String, "%3s", gModulationStr[settings.modulationType]);
   GUI_DisplaySmallest(String, 116, 1, false, true);
@@ -1075,7 +1075,7 @@ static void RenderStill() {
 }
 
 static void Render() {
-  memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+  UI_DisplayClear();
 
   switch (currentState) {
   case SPECTRUM:

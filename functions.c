@@ -268,6 +268,7 @@ void FUNCTION_Select(FUNCTION_Type_t Function)
 		case FUNCTION_INCOMING:
 		case FUNCTION_RECEIVE:
 		case FUNCTION_BAND_SCOPE:
+		default:
 			break;
 	}
 

@@ -166,6 +166,35 @@ static void CheckForIncoming(void)
 	}
 }
 
+#ifdef ENABLE_TX_WHEN_AM
+uint8_t calculateRFSignalPower(uint8_t amplitude, uint8_t maxPower, uint8_t carrierPercentage)
+{
+	if (carrierPercentage == 0) {
+		return (uint8_t)((amplitude * maxPower) / 255);
+	}
+	uint8_t carrierAmplitude = (carrierPercentage * maxPower) / 100;
+	uint8_t modulationDepth = maxPower - carrierAmplitude;
+	return carrierAmplitude + (modulationDepth * amplitude / 255);
+}
+#endif
+
+static void HandleTransmit(void)
+{
+#ifdef ENABLE_TX_WHEN_AM
+	if (gCurrentVfo->Modulation == MODULATION_FM)
+		return;
+	uint8_t val = BK4819_GetVoiceAmplitudeOut() >> 7;
+	if (gCurrentVfo->Modulation == MODULATION_USB) {
+		val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 0);
+	}
+	else {
+		val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 50);
+	}
+	const FREQ_modulation_setting_t *offsets = &gModulationFreqOffset[gCurrentVfo->Modulation];
+	BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency + offsets->TX);
+#endif
+}
+
 static void HandleIncoming(void)
 {
 	if (!g_SquelchLost) {	// squelch is closed
@@ -408,61 +437,29 @@ Skip:
 			break;
 	}
 }
-#ifdef ENABLE_TX_WHEN_AM
-uint8_t calculateRFSignalPower(uint8_t amplitude, uint8_t maxPower, uint8_t carrierPercentage) 
+
+static void HandlePowerSave()
 {
-  if (carrierPercentage == 0) {
-    return (uint8_t)((amplitude * maxPower) / 255);
-  }
-  uint8_t carrierAmplitude = (carrierPercentage * maxPower) / 100;
-  uint8_t modulationDepth = maxPower - carrierAmplitude;
-  return carrierAmplitude + (modulationDepth * amplitude / 255);
+	if (!gRxIdleMode) {
+		CheckForIncoming();
+	}
 }
-#endif
+
+static void (*HandleFunction_fn_table[])(void) = {
+	[FUNCTION_FOREGROUND] = &CheckForIncoming,
+	[FUNCTION_TRANSMIT] = &HandleTransmit,
+	[FUNCTION_MONITOR] = &FUNCTION_NOP,
+	[FUNCTION_INCOMING] = &HandleIncoming,
+	[FUNCTION_RECEIVE] = &HandleReceive,
+	[FUNCTION_POWER_SAVE] = &HandlePowerSave,
+	[FUNCTION_BAND_SCOPE] = &FUNCTION_NOP,
+};
+
+static_assert(ARRAY_SIZE(HandleFunction_fn_table) == FUNCTION_N_ELEM);
+
 static void HandleFunction(void)
 {
-	switch (gCurrentFunction)
-	{
-		case FUNCTION_FOREGROUND:
-			CheckForIncoming();
-			break;
-
-		case FUNCTION_TRANSMIT:
-#ifdef ENABLE_TX_WHEN_AM
-			if (gCurrentVfo->Modulation != MODULATION_FM) {
-				uint8_t val = BK4819_GetVoiceAmplitudeOut() >> 7;
-				if (gCurrentVfo->Modulation == MODULATION_USB) {
-					val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 0);
-				}
-				else {
-					val = calculateRFSignalPower(val, gCurrentVfo->TXP_CalculatedSetting, 50);
-				}
-				const FREQ_modulation_setting_t *offsets = &gModulationFreqOffset[gCurrentVfo->Modulation];
-				BK4819_SetupPowerAmplifier(val, gCurrentVfo->pTX->Frequency + offsets->TX);
-
-			}
-#endif
-			break;
-
-		case FUNCTION_MONITOR:
-			break;
-
-		case FUNCTION_INCOMING:
-			HandleIncoming();
-			break;
-
-		case FUNCTION_RECEIVE:
-			HandleReceive();
-			break;
-
-		case FUNCTION_POWER_SAVE:
-			if (!gRxIdleMode)
-				CheckForIncoming();
-			break;
-
-		case FUNCTION_BAND_SCOPE:
-			break;
-	}
+	HandleFunction_fn_table[gCurrentFunction]();
 }
 
 void APP_StartListening(FUNCTION_Type_t function)
@@ -485,7 +482,7 @@ void APP_StartListening(FUNCTION_Type_t function)
 	AUDIO_AudioPathOn();
 	gEnableSpeaker = true;
 
-	if (gSetting_backlight_on_tx_rx != BACKLIGHT_ON_TR_OFF) {
+	if (gSetting_backlight_on_tx_rx & BACKLIGHT_ON_TR_RX) {
 		BACKLIGHT_TurnOn();
 	}
 
@@ -585,7 +582,7 @@ static void DualwatchAlternate(void)
 
 			gRxVfo = &gEeprom.VfoInfo[gEeprom.RX_VFO];
 
-			if (gEeprom.VfoInfo[0].CHANNEL_SAVE >= NOAA_CHANNEL_FIRST)
+			if (IS_NOAA_CHANNEL(gEeprom.VfoInfo[0].CHANNEL_SAVE))
 				NOAA_IncreaseChannel();
 		}
 		else

@@ -217,7 +217,7 @@ void DisplayRSSIBar(const bool now)
 		memcpy(p_line + 2 + 7*5, &plus, ARRAY_SIZE(plus));
 	}
 
-	UI_PrintStringSmall(str, 2, 0, line);
+	UI_PrintStringSmallNormal(str, 2, 0, line);
 	DrawLevelBar(bar_x, line, s_level + overS9Bars);
 	if (now)
 		ST7565_BlitLine(line);
@@ -248,7 +248,7 @@ void DisplayRSSIBar(const bool now)
 }
 
 #ifdef ENABLE_AGC_SHOW_DATA
-static void PrintAGC(bool now)
+void UI_MAIN_PrintAGC(bool now)
 {
 	char buf[20];
 	memset(gFrameBuffer[3], 0, 128);
@@ -280,7 +280,7 @@ static void PrintAGC(bool now)
 	int16_t agcGain = lnaShortTab[agcGainReg.lnaS] + lnaTab[agcGainReg.lna] + mixerTab[agcGainReg.mixer] + pgaTab[agcGainReg.pga];
 
 	sprintf(buf, "%d%2d %2d %2d %3d", reg7e.agcEnab, reg7e.gainIdx, -agcGain, reg7e.agcSigStrength, BK4819_GetRSSI());
-	UI_PrintStringSmall(buf, 2, 0, 3);
+	UI_PrintStringSmallNormal(buf, 2, 0, 3);
 	if(now)
 		ST7565_BlitLine(3);
 }
@@ -290,7 +290,7 @@ void UI_MAIN_TimeSlice500ms(void)
 {
 	if(gScreenToDisplay==DISPLAY_MAIN) {
 #ifdef ENABLE_AGC_SHOW_DATA
-		PrintAGC(true);
+		UI_MAIN_PrintAGC(true);
 		return;
 #endif
 
@@ -309,7 +309,7 @@ void UI_DisplayMain(void)
 	center_line = CENTER_LINE_NONE;
 
 	// clear the screen
-	memset(gFrameBuffer, 0, sizeof(gFrameBuffer));
+	UI_DisplayClear();
 
 	if(gLowBattery && !gLowBatteryConfirmed) {
 		UI_DisplayPopup("LOW BATTERY");
@@ -343,9 +343,9 @@ void UI_DisplayMain(void)
 			if(gScanRangeStart) {
 				UI_PrintString("ScnRng", 5, 0, line, 8);
 				sprintf(String, "%3u.%05u", gScanRangeStart / 100000, gScanRangeStart % 100000);
-				UI_PrintStringSmall(String, 56, 0, line);
+				UI_PrintStringSmallNormal(String, 56, 0, line);
 				sprintf(String, "%3u.%05u", gScanRangeStop / 100000, gScanRangeStop % 100000);
-				UI_PrintStringSmall(String, 56, 0, line + 1);
+				UI_PrintStringSmallNormal(String, 56, 0, line + 1);
 				continue;
 			}
 #endif
@@ -360,7 +360,6 @@ void UI_DisplayMain(void)
 				// show DTMF stuff
 #ifdef ENABLE_DTMF_CALLING
 				char Contact[16];
-
 				if (!gDTMF_InputMode) {
 					if (gDTMF_CallState == DTMF_CALL_STATE_CALL_OUT) {
 						pPrintStr = DTMF_FindContact(gDTMF_String, Contact) ? Contact : gDTMF_String;
@@ -421,11 +420,7 @@ void UI_DisplayMain(void)
 				if (activeTxVFO == vfo_num)
 				{	// show the TX symbol
 					mode = VFO_MODE_TX;
-#ifdef ENABLE_SMALL_BOLD
 					UI_PrintStringSmallBold("TX", 14, 0, line);
-#else
-					UI_PrintStringSmall("TX", 14, 0, line);
-#endif
 				}
 			}
 		}
@@ -433,11 +428,7 @@ void UI_DisplayMain(void)
 		{	// receiving .. show the RX symbol
 			mode = VFO_MODE_RX;
 			if (FUNCTION_IsRx() && gEeprom.RX_VFO == vfo_num) {
-#ifdef ENABLE_SMALL_BOLD
 				UI_PrintStringSmallBold("RX", 14, 0, line);
-#else
-				UI_PrintStringSmall("RX", 14, 0, line);
-#endif
 			}
 		}
 
@@ -449,7 +440,7 @@ void UI_DisplayMain(void)
 				sprintf(String, "M%u", gEeprom.ScreenChannel[vfo_num] + 1);
 			else
 				sprintf(String, "M%.3s", INPUTBOX_GetAscii());  // show the input text
-			UI_PrintStringSmall(String, x, 0, line + 1);
+			UI_PrintStringSmallNormal(String, x, 0, line + 1);
 		}
 		else if (IS_FREQ_CHANNEL(gEeprom.ScreenChannel[vfo_num]))
 		{	// frequency mode
@@ -457,7 +448,7 @@ void UI_DisplayMain(void)
 			const unsigned int x = 2;
 			char * buf = gEeprom.VfoInfo[vfo_num].pRX->Frequency < _1GHz_in_KHz ? "" : "+";
 			sprintf(String, "F%u%s", 1 + gEeprom.ScreenChannel[vfo_num] - FREQ_CHANNEL_FIRST, buf);
-			UI_PrintStringSmall(String, x, 0, line + 1);
+			UI_PrintStringSmallNormal(String, x, 0, line + 1);
 		}
 #ifdef ENABLE_NOAA
 		else
@@ -470,7 +461,7 @@ void UI_DisplayMain(void)
 			{	// user entering channel number
 				sprintf(String, "N%u%u", '0' + gInputBox[0], '0' + gInputBox[1]);
 			}
-			UI_PrintStringSmall(String, 7, 0, line + 1);
+			UI_PrintStringSmallNormal(String, 7, 0, line + 1);
 		}
 #endif
 
@@ -504,7 +495,7 @@ void UI_DisplayMain(void)
 #ifdef ENABLE_BIG_FREQ
 			if(!isGigaF) {
 				// show the remaining 2 small frequency digits
-				UI_PrintStringSmall(String + 7, 113, 0, line + 1);
+				UI_PrintStringSmallNormal(String + 7, 113, 0, line + 1);
 				String[7] = 0;
 				// show the main large frequency digits
 				UI_DisplayFrequency(String, 32, line, false);
@@ -551,7 +542,7 @@ void UI_DisplayMain(void)
 #ifdef ENABLE_BIG_FREQ
 						if(frequency < _1GHz_in_KHz) {
 							// show the remaining 2 small frequency digits
-							UI_PrintStringSmall(String + 7, 113, 0, line + 1);
+							UI_PrintStringSmallNormal(String + 7, 113, 0, line + 1);
 							String[7] = 0;
 							// show the main large frequency digits
 							UI_DisplayFrequency(String, 32, line, false);
@@ -583,14 +574,10 @@ void UI_DisplayMain(void)
 							UI_PrintString(String, 32, 0, line, 8);
 						}
 						else {
-#ifdef ENABLE_SMALL_BOLD
 							UI_PrintStringSmallBold(String, 32 + 4, 0, line);
-#else
-							UI_PrintStringSmall(String, 32 + 4, 0, line);
-#endif
 							// show the channel frequency below the channel number/name
 							sprintf(String, "%03u.%05u", frequency / 100000, frequency % 100000);
-							UI_PrintStringSmall(String, 32 + 4, 0, line + 1);
+							UI_PrintStringSmallNormal(String, 32 + 4, 0, line + 1);
 						}
 
 						break;
@@ -603,7 +590,7 @@ void UI_DisplayMain(void)
 #ifdef ENABLE_BIG_FREQ
 				if(frequency < _1GHz_in_KHz) {
 					// show the remaining 2 small frequency digits
-					UI_PrintStringSmall(String + 7, 113, 0, line + 1);
+					UI_PrintStringSmallNormal(String + 7, 113, 0, line + 1);
 					String[7] = 0;
 					// show the main large frequency digits
 					UI_DisplayFrequency(String, 32, line, false);
@@ -673,7 +660,7 @@ void UI_DisplayMain(void)
 				s = gModulationStr[mod];
 			break;
 		}
-		UI_PrintStringSmall(s, LCD_WIDTH + 24, 0, line + 1);
+		UI_PrintStringSmallNormal(s, LCD_WIDTH + 24, 0, line + 1);
 
 		if (state == VFO_STATE_NORMAL || state == VFO_STATE_ALARM)
 		{	// show the TX power
@@ -681,7 +668,7 @@ void UI_DisplayMain(void)
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].OUTPUT_POWER;
 			String[0] = (i < ARRAY_SIZE(pwr_list)) ? pwr_list[i] : '\0';
 			String[1] = '\0';
-			UI_PrintStringSmall(String, LCD_WIDTH + 46, 0, line + 1);
+			UI_PrintStringSmallNormal(String, LCD_WIDTH + 46, 0, line + 1);
 		}
 
 		if (gEeprom.VfoInfo[vfo_num].freq_config_RX.Frequency != gEeprom.VfoInfo[vfo_num].freq_config_TX.Frequency)
@@ -690,12 +677,12 @@ void UI_DisplayMain(void)
 			const unsigned int i = gEeprom.VfoInfo[vfo_num].TX_OFFSET_FREQUENCY_DIRECTION;
 			String[0] = (i < sizeof(dir_list)) ? dir_list[i] : '?';
 			String[1] = '\0';
-			UI_PrintStringSmall(String, LCD_WIDTH + 54, 0, line + 1);
+			UI_PrintStringSmallNormal(String, LCD_WIDTH + 54, 0, line + 1);
 		}
 
 		// show the TX/RX reverse symbol
 		if (gEeprom.VfoInfo[vfo_num].FrequencyReverse)
-			UI_PrintStringSmall("R", LCD_WIDTH + 62, 0, line + 1);
+			UI_PrintStringSmallNormal("R", LCD_WIDTH + 62, 0, line + 1);
 
 		{	// show the narrow band symbol
 			String[0] = 'W';
@@ -710,23 +697,23 @@ void UI_DisplayMain(void)
 				String[0] = 'N';
 				String[1] = '-';
 			}
-			UI_PrintStringSmall(String, LCD_WIDTH + 70, 0, line + 1);
+			UI_PrintStringSmallNormal(String, LCD_WIDTH + 70, 0, line + 1);
 		}
 
 #ifdef ENABLE_DTMF_CALLING
 		// show the DTMF decoding symbol
 		if (gEeprom.VfoInfo[vfo_num].DTMF_DECODING_ENABLE || gSetting_KILLED)
-			UI_PrintStringSmall("DTMF", LCD_WIDTH + 78, 0, line + 1);
+			UI_PrintStringSmallNormal("DTMF", LCD_WIDTH + 78, 0, line + 1);
 #endif
 
 		// show the audio scramble symbol
 		if (gEeprom.VfoInfo[vfo_num].SCRAMBLING_TYPE > 0 && gSetting_ScrambleEnable)
-			UI_PrintStringSmall("SCR", LCD_WIDTH + 106, 0, line + 1);
+			UI_PrintStringSmallNormal("SCR", LCD_WIDTH + 106, 0, line + 1);
 	}
 
 #ifdef ENABLE_AGC_SHOW_DATA
 	center_line = CENTER_LINE_IN_USE;
-	PrintAGC(false);
+	UI_MAIN_PrintAGC(false);
 #endif
 
 	if (center_line == CENTER_LINE_NONE)
@@ -754,7 +741,7 @@ void UI_DisplayMain(void)
 
 			center_line = CENTER_LINE_AM_FIX_DATA;
 			AM_fix_print_data(gEeprom.RX_VFO, String);
-			UI_PrintStringSmall(String, 2, 0, 3);
+			UI_PrintStringSmallNormal(String, 2, 0, 3);
 		}
 		else
 #endif
@@ -783,9 +770,8 @@ void UI_DisplayMain(void)
 
 					center_line = CENTER_LINE_DTMF_DEC;
 
-					strcpy(String, "DTMF ");
-					strcat(String, gDTMF_RX_live + idx);
-					UI_PrintStringSmall(String, 2, 0, 3);
+					sprintf(String, "DTMF %s", gDTMF_RX_live + idx);
+					UI_PrintStringSmallNormal(String, 2, 0, 3);
 				}
 			#else
 				if (gSetting_live_DTMF_decoder && gDTMF_RX_index > 0)
@@ -799,9 +785,8 @@ void UI_DisplayMain(void)
 
 					center_line = CENTER_LINE_DTMF_DEC;
 
-					strcpy(String, "DTMF ");
-					strcat(String, gDTMF_RX + idx);
-					UI_PrintStringSmall(String, 2, 0, 3);
+					sprintf(String, "DTMF %s", gDTMF_RX_live + idx);
+					UI_PrintStringSmallNormal(String, 2, 0, 3);
 				}
 			#endif
 
@@ -820,7 +805,7 @@ void UI_DisplayMain(void)
 				sprintf(String, "Charge %u.%02uV %u%%",
 					gBatteryVoltageAverage / 100, gBatteryVoltageAverage % 100,
 					BATTERY_VoltsToPercent(gBatteryVoltageAverage));
-				UI_PrintStringSmall(String, 2, 0, 3);
+				UI_PrintStringSmallNormal(String, 2, 0, 3);
 			}
 #endif
 		}
