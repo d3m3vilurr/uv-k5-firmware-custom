@@ -60,6 +60,7 @@ typedef struct {
 	STEP_Setting_t STEP_SETTING;
 } MODULATION_settings_t;
 
+#ifdef ENABLE_AUTO_SET_MODE_DEF
 const MODULATION_settings_t modulationDefaultSettings[] = {
 	{.BANDWIDTH = BANDWIDTH_WIDE,       .STEP_SETTING = STEP_20kHz},
 	{.BANDWIDTH = BANDWIDTH_NARROW,     .STEP_SETTING = STEP_1kHz},
@@ -73,6 +74,7 @@ const MODULATION_settings_t modulationDefaultSettings[] = {
 	{.BANDWIDTH = BANDWIDTH_WIDE,       .STEP_SETTING = STEP_12_5kHz},
 #endif
 };
+#endif
 
 void (*action_opt_table[])(void) = {
 	[ACTION_OPT_NONE] = &FUNCTION_NOP,
@@ -258,6 +260,13 @@ void ACTION_SwitchDemodul(void)
 
 	if(gTxVfo->Modulation == MODULATION_UKNOWN)
 		gTxVfo->Modulation = MODULATION_FM;
+
+#ifdef ENABLE_AUTO_SET_MODE_DEF
+	const MODULATION_settings_t *setting = &modulationDefaultSettings[gTxVfo->Modulation];
+
+	gTxVfo->CHANNEL_BANDWIDTH = setting->BANDWIDTH;
+	gTxVfo->STEP_SETTING = setting->STEP_SETTING;
+#endif
 }
 
 
@@ -459,21 +468,5 @@ void ACTION_BlminTmpOff(void)
 	} else {
 		BACKLIGHT_SetBrightness(0);
 	}
-}
-#endif
-
-#ifdef ENABLE_MODE_CHANGE
-void ACTION_ModeChange(void)
-{
-	ModulationMode_t mod = gTxVfo->Modulation;
-	mod++;
-	if (mod >= MODULATION_UKNOWN) {
-		mod = MODULATION_FM;
-	}
-	gTxVfo->Modulation = mod;
-	const MODULATION_settings_t *setting = &modulationDefaultSettings[mod];
-
-	gTxVfo->CHANNEL_BANDWIDTH = setting->BANDWIDTH;
-	gTxVfo->STEP_SETTING = setting->STEP_SETTING;
 }
 #endif

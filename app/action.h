@@ -35,10 +35,6 @@ void ACTION_SwitchDemodul(void);
 void ACTION_BlminTmpOff(void);
 #endif
 
-#ifdef ENABLE_MODE_CHANGE
-void ACTION_ModeChange(void);
-#endif
-
 void ACTION_Handle(KEY_Code_t Key, bool bKeyPressed, bool bKeyHeld);
 
 #endif

@@ -562,7 +562,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		return;
 	}
 
-#ifdef ENABLE_MODE_CHANGE
+#ifdef ENABLE_F_MENU
 	if (!bKeyPressed && gWasFKeyPressed)
 	{	// F + menu key
 		gWasFKeyPressed = false;
@@ -570,7 +570,7 @@ static void MAIN_Key_MENU(const bool bKeyPressed, const bool bKeyHeld)
 		gRequestSaveVFO = true;
 		gRequestSaveChannel = 1;
 
-		ACTION_ModeChange();
+		ACTION_SwitchDemodul();
 		return;
 	}
 #endif
