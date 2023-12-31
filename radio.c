@@ -68,8 +68,8 @@ const FREQ_modulation_setting_t gModulationFreqOffset[MODULATION_UKNOWN] = {
 #endif
 
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
-	{.TX = 0, .RX = 80},
-	{.TX = 0, .RX = 80},
+	{.TX = 0, .RX = 0},
+	{.TX = 0, .RX = 0},
 #endif
 };
 
