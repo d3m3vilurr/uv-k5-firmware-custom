@@ -3,12 +3,6 @@
 # 0 = disable
 # 1 = enable
 
-# ---- COMPILER/LINKER OPTIONS ----
-ENABLE_CLANG                  ?= 0
-ENABLE_SWD                    ?= 0
-ENABLE_OVERLAY                ?= 0
-ENABLE_LTO                    ?= 1
-
 # ---- STOCK QUANSHENG FERATURES ----
 ENABLE_UART                   ?= 1
 ENABLE_AIRCOPY                ?= 0
@@ -57,6 +51,12 @@ ENABLE_CW_MODULATION          ?= 1
 ENABLE_AM_FIX_SHOW_DATA       ?= 0
 ENABLE_AGC_SHOW_DATA          ?= 0
 ENABLE_UART_RW_BK_REGS        ?= 0
+
+# ---- COMPILER/LINKER OPTIONS ----
+ENABLE_CLANG                  ?= 0
+ENABLE_SWD                    ?= 0
+ENABLE_OVERLAY                ?= 0
+ENABLE_LTO                    ?= 1
 
 #############################################################
 
