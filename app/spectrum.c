@@ -349,7 +349,7 @@ static void ToggleRX(bool on) {
 
   if (on) {
     listenT = 1000;
-    BK4819_WriteRegister(0x43, listenBWRegValues[settings.listenBw]);
+    BK4819_SetFilterBandwidth(settings.listenBw, false);
   } else {
     BK4819_WriteRegister(0x43, GetBWRegValueForScan());
   }
@@ -1191,7 +1191,7 @@ static void UpdateListening() {
   if (currentState == SPECTRUM) {
     BK4819_WriteRegister(0x43, GetBWRegValueForScan());
     Measure();
-    BK4819_WriteRegister(0x43, listenBWRegValues[settings.listenBw]);
+    BK4819_SetFilterBandwidth(settings.listenBw, false);
   } else {
     Measure();
   }
