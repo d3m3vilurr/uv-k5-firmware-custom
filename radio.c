@@ -959,7 +959,12 @@ void RADIO_SetModulation(ModulationMode_t modulation)
 			break;
 	}
 
-	BK4819_SetRegValue(afcDisableRegSpec, modulation != MODULATION_FM);
+	BK4819_SetRegValue(afcDisableRegSpec,
+		modulation != MODULATION_FM
+#ifdef ENABLE_CW_MODULATION
+		&& modulation != MODULATION_CW
+#endif
+	);
 
 	RADIO_SetupAGC(modulation == MODULATION_AM, false);
 }
