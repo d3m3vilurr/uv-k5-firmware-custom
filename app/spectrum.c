@@ -554,6 +554,7 @@ static void ToggleListeningBW() {
   } else {
     settings.listenBw++;
   }
+  BK4819_SetFilterBandwidth(settings.listenBw, false);
   redrawScreen = true;
 }
 
