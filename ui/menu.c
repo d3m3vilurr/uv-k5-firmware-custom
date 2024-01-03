@@ -165,9 +165,17 @@ const char gSubMenu_SFT_D[][4] =
 
 const char gSubMenu_W_N[][8] =
 {
+#ifdef ENABLE_EXPERIMENTAL_BW_FILTER
+	"25.0kHz",
+	"12.5kHz",
+	"8.33kHz",
+	"6.25kHz",
+	"5.00kHz",
+#else
 	"WIDE",
 	"NARROW",
 	"NARROW-"
+#endif
 };
 
 const char gSubMenu_OFF_ON[][4] =

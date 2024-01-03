@@ -683,8 +683,17 @@ void UI_DisplayMain(void)
 
 		if (vfoInfo->CHANNEL_BANDWIDTH == BANDWIDTH_NARROW)
 			UI_PrintStringSmallNormal("N", LCD_WIDTH + 70, 0, line + 1);
+#ifdef ENABLE_EXPERIMENTAL_BW_FILTER
+		else if (vfoInfo->CHANNEL_BANDWIDTH == BANDWIDTH_NARROWAVIATION)
+			UI_PrintStringSmallNormal("N-", LCD_WIDTH + 70, 0, line + 1);
+		else if (vfoInfo->CHANNEL_BANDWIDTH == BANDWIDTH_NARROWER)
+			UI_PrintStringSmallNormal("N-1", LCD_WIDTH + 70, 0, line + 1);
+		else if (vfoInfo->CHANNEL_BANDWIDTH == BANDWIDTH_NARROWEST)
+			UI_PrintStringSmallNormal("N-2", LCD_WIDTH + 70, 0, line + 1);
+#else
 		else if (vfoInfo->CHANNEL_BANDWIDTH == BANDWIDTH_NARROWER)
 			UI_PrintStringSmallNormal("N-", LCD_WIDTH + 70, 0, line + 1);
+#endif
 
 #ifdef ENABLE_DTMF_CALLING
 		// show the DTMF decoding symbol
