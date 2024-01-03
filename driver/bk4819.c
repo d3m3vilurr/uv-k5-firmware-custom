@@ -646,7 +646,6 @@ void BK4819_SetFilterBandwidth(const BK4819_FilterBandwidth_t Bandwidth, const b
 
 		case BK4819_FILTER_BW_NARROWER:	// 6.25kHz
 			val = (3u << 12) |     //  3 RF filter bandwidth
-				  (3u <<  9) |     // *0 RF filter bandwidth when signal is weak
 				  (1u <<  6) |     //  1 AFTxLPF2 filter Band Width
 				  (1u <<  4) |     //  1 BW Mode Selection
 				  (1u <<  3) |     //  1
