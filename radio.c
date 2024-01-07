@@ -64,7 +64,7 @@ const FREQ_modulation_setting_t gModulationFreqOffset[MODULATION_UKNOWN] = {
 	{.TX = 0, .RX = 0},
 
 #ifdef ENABLE_CW_MODULATION
-	{.TX = -45, .RX = 5},
+	{.TX = 0, .RX = 60},
 #endif
 
 #ifdef ENABLE_BYP_RAW_DEMODULATORS
